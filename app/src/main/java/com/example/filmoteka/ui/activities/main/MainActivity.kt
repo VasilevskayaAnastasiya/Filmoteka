@@ -13,6 +13,7 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.filmoteka.ui.screens.home.HomeScreen
 import com.example.filmoteka.ui.screens.home.HomeViewModel
+import com.example.filmoteka.ui.screens.home.TopBar
 import com.example.filmoteka.ui.screens.wishlist.WishListScreen
 import com.example.filmoteka.ui.screens.wishlist.WishListViewModel
 import com.example.filmoteka.ui.theme.FilmotekaTheme
@@ -37,7 +39,9 @@ class MainActivity : ComponentActivity() {
 
                 val snackbarHostState = remember { SnackbarHostState() }
 
-                Scaffold(topBar = {}, bottomBar = {
+                Scaffold(topBar = {
+
+                }, bottomBar = {
                     NavigationBar {
                         NavigationBarItem(selected = false,
                             onClick = { navHostController.navigate("home") },
