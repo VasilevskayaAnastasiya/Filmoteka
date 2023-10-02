@@ -5,12 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.filmoteka.model.data.ErrorDTO
 import com.example.filmoteka.model.data.FilmModelDTO
+import com.example.filmoteka.model.db.FilmDao
+import com.example.filmoteka.model.db.FilmItem
 import com.example.filmoteka.repo.KinopoiskRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -18,9 +21,10 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import javax.inject.Inject
 
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val retrofit: Retrofit, val kinopoiskRepo: KinopoiskRepo
+    val retrofit: Retrofit, val kinopoiskRepo: KinopoiskRepo, val filmDao: FilmDao,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state
@@ -29,7 +33,16 @@ class HomeViewModel @Inject constructor(
     val error: Flow<Throwable> = _error.consumeAsFlow()
 
     init {
-//        loadFilms(1)
+        viewModelScope.launch {
+            filmDao.getWishlist().collectLatest { items ->
+                val wishlist = items.map { it.id_api }.toSet()
+                _state.update { oldState ->
+                    oldState.copy(
+                        wishlist = wishlist
+                    )
+                }
+            }
+        }
     }
 
     fun fetchMoreItems() {
@@ -54,9 +67,7 @@ class HomeViewModel @Inject constructor(
                 } ?: emptyList()
                 _state.update { oldState ->
                     oldState.copy(
-                        films = oldState.films + films,
-                        lastPage = page,
-                        search = oldState.search
+                        films = oldState.films + films, lastPage = page, search = oldState.search
                     )
                 }
             } else {
@@ -66,14 +77,24 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun searchByNameFilms(search: String){
+    fun searchByNameFilms(search: String) {
         _state.update { oldState ->
             oldState.copy(
-                films = emptyList(),
-                lastPage = 0,
-                search = search
+                films = emptyList(), lastPage = 0, search = search
             )
         }
         loadFilms(0, search)
+    }
+
+    fun addToWishlist(filmId: String) {
+        viewModelScope.launch {
+            filmDao.insertToWishlist(FilmItem(0, filmId))
+        }
+    }
+
+    fun removeFromWishlist(filmId: String){
+        viewModelScope.launch {
+            filmDao.deletefromWishlist(filmId)
+        }
     }
 }

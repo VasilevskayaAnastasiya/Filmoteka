@@ -1,11 +1,15 @@
 package com.example.filmoteka.di
 
+import android.content.Context
+import com.example.filmoteka.model.db.AppDatabase
+import com.example.filmoteka.model.db.FilmDao
 import com.example.filmoteka.model.network.KinopoiskApiInterface
 import com.example.filmoteka.repo.KinopoiskRepo
 import com.example.filmoteka.repo.KinopoiskRepoImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -40,5 +44,17 @@ object AppModule {
     @Provides
     fun provideKinopoiskRepository(api: KinopoiskApiInterface): KinopoiskRepo {
         return KinopoiskRepoImpl(api)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        return AppDatabase.getInstance(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideFilmDao(appDatabase: AppDatabase): FilmDao {
+        return appDatabase.FilmDao()
     }
 }

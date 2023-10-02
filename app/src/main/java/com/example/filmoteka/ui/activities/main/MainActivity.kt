@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.filmoteka.model.db.FilmDao
 import com.example.filmoteka.ui.screens.home.HomeScreen
 import com.example.filmoteka.ui.screens.home.HomeViewModel
 import com.example.filmoteka.ui.screens.home.TopBar
@@ -67,6 +68,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable("home") {
                             val viewModel = hiltViewModel<HomeViewModel>()
+
                             HomeScreen(viewModel = viewModel, snackbarHostState = snackbarHostState)
                         }
 

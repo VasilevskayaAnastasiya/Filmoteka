@@ -12,5 +12,6 @@ data class HomeFilm(
 data class HomeState(
     val films: List<HomeFilm> = emptyList(),
     val lastPage: Int = 0,
-    val search: String = ""
+    val search: String = "",
+    val wishlist: Set<String> = emptySet(),
 )

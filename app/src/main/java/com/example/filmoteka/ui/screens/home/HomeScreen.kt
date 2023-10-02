@@ -1,25 +1,24 @@
 package com.example.filmoteka.ui.screens.home
 
-import android.net.Uri
-import androidx.appcompat.widget.SearchView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,7 +27,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -39,18 +37,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.filmoteka.R
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, snackbarHostState: SnackbarHostState) {
@@ -64,12 +58,12 @@ fun HomeScreen(viewModel: HomeViewModel, snackbarHostState: SnackbarHostState) {
 
     Column {
         TopBar(viewModel)
-        HomeFilmsWidget(viewModel, films = state.value.films)
+        HomeFilmsWidget(viewModel, films = state.value.films, wishlist = state.value.wishlist)
     }
 }
 
 @Composable
-private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<HomeFilm>) {
+private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<HomeFilm>, wishlist: Set<String>) {
 
     val gridState = rememberLazyGridState()
     LazyVerticalGrid(
@@ -81,7 +75,7 @@ private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<HomeFilm>) {
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(films, { film -> film.id }) { film ->
-            HomeFilmWidget(film)
+            HomeFilmWidget(film, viewModel, wishlist)
         }
     }
     // call the extension function
@@ -91,7 +85,7 @@ private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<HomeFilm>) {
 }
 
 @Composable
-private fun HomeFilmWidget(film: HomeFilm) {
+private fun HomeFilmWidget(film: HomeFilm, viewModel: HomeViewModel, wishlist: Set<String>) {
     val placeholderPhoto = painterResource(id = R.drawable.placeholder)
     Column {
         AsyncImage(
@@ -105,14 +99,44 @@ private fun HomeFilmWidget(film: HomeFilm) {
         )
         Text(text = film.title, style = MaterialTheme.typography.titleLarge)
         Text(text = film.year.toString(), style = MaterialTheme.typography.bodyLarge)
+
+        val wishListed = wishlist.contains(film.id)
+        val iconWishlist = if (wishListed) {
+            Icons.Outlined.Bookmark
+        } else {
+            Icons.Outlined.BookmarkAdd
+        }
+        Row {
+            IconButton(onClick = {
+                if(wishListed) {
+                    viewModel.removeFromWishlist(film.id)
+                }else{
+                    viewModel.addToWishlist(film.id)
+                }
+            }) {
+                Icon(
+                    iconWishlist,
+                    contentDescription = "Буду смотреть",
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(30.dp),
+                    tint = Color.White,
+                )
+            }
+            Icon(
+                painterResource(R.drawable.icon_wishlist_add),
+                contentDescription = "",
+                modifier = Modifier.size(30.dp)
+            )
+        }
+
     }
 }
 
 @Composable
 fun LazyGridState.OnBottomReached(
-    buffer : Int = 4,
-    onLoadMore : () -> Unit
-){
+    buffer: Int = 4, onLoadMore: () -> Unit
+) {
     val shouldLoadMore = remember {
         derivedStateOf {
             val layoutInfo = layoutInfo
@@ -127,13 +151,13 @@ fun LazyGridState.OnBottomReached(
         snapshotFlow { shouldLoadMore.value }.collect { onLoadMore() }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(viewModel: HomeViewModel) {
-            Column {
-                SearchViewWidget(remember { mutableStateOf(TextFieldValue(""))}, viewModel)
-            //CountryList(navController = navController, state = textState)
-        }
+    Column {
+        SearchViewWidget(remember { mutableStateOf(TextFieldValue("")) }, viewModel)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -145,31 +169,28 @@ fun SearchViewWidget(state: MutableState<TextFieldValue>, viewModel: HomeViewMod
             state.value = value
             viewModel.searchByNameFilms(value.text.toString())
         },
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         textStyle = TextStyle(color = Color.White, fontSize = 18.sp),
         leadingIcon = {
             Icon(
                 Icons.Default.Search,
                 contentDescription = "",
                 modifier = Modifier
-                    //.padding(15.dp)
+                    .padding(15.dp)
                     .size(24.dp)
             )
         },
         trailingIcon = {
             if (state.value != TextFieldValue("")) {
-                IconButton(
-                    onClick = {
-                        state.value =
-                            TextFieldValue("") // Remove text from TextField when you press the 'X' icon
-                    }
-                ) {
+                IconButton(onClick = {
+                    state.value = TextFieldValue("")
+                    viewModel.searchByNameFilms("")
+                }) {
                     Icon(
                         Icons.Default.Close,
                         contentDescription = "",
                         modifier = Modifier
-                            //.padding(15.dp)
+                            .padding(15.dp)
                             .size(24.dp)
                     )
                 }
