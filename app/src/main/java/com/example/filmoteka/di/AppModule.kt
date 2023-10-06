@@ -3,6 +3,7 @@ package com.example.filmoteka.di
 import android.content.Context
 import com.example.filmoteka.model.db.AppDatabase
 import com.example.filmoteka.model.db.FilmDao
+import com.example.filmoteka.model.db.FilmRepo
 import com.example.filmoteka.model.network.KinopoiskApiInterface
 import com.example.filmoteka.repo.KinopoiskRepo
 import com.example.filmoteka.repo.KinopoiskRepoImpl
@@ -57,4 +58,11 @@ object AppModule {
     fun provideFilmDao(appDatabase: AppDatabase): FilmDao {
         return appDatabase.FilmDao()
     }
+
+    @Singleton
+    @Provides
+    fun provideFilmRepo(filmDao: FilmDao): FilmRepo{
+        return FilmRepo(filmDao)
+    }
+
 }

@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.filmoteka.R
+import com.example.filmoteka.model.FilmItem
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, snackbarHostState: SnackbarHostState) {
@@ -63,7 +64,7 @@ fun HomeScreen(viewModel: HomeViewModel, snackbarHostState: SnackbarHostState) {
 }
 
 @Composable
-private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<HomeFilm>, wishlist: Set<String>) {
+private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<FilmItem>, wishlist: Set<String>) {
 
     val gridState = rememberLazyGridState()
     LazyVerticalGrid(
@@ -85,7 +86,7 @@ private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<HomeFilm>, wis
 }
 
 @Composable
-private fun HomeFilmWidget(film: HomeFilm, viewModel: HomeViewModel, wishlist: Set<String>) {
+private fun HomeFilmWidget(film: FilmItem, viewModel: HomeViewModel, wishlist: Set<String>) {
     val placeholderPhoto = painterResource(id = R.drawable.placeholder)
     Column {
         AsyncImage(
@@ -111,7 +112,7 @@ private fun HomeFilmWidget(film: HomeFilm, viewModel: HomeViewModel, wishlist: S
                 if(wishListed) {
                     viewModel.removeFromWishlist(film.id)
                 }else{
-                    viewModel.addToWishlist(film.id)
+                    viewModel.addToWishlist(film)
                 }
             }) {
                 Icon(
