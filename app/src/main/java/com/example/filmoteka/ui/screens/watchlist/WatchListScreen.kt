@@ -1,4 +1,4 @@
-package com.example.filmoteka.ui.screens.wishlist
+package com.example.filmoteka.ui.screens.watchlist
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bookmark
-import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,24 +29,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.filmoteka.R
 import com.example.filmoteka.model.FilmItem
-import com.example.filmoteka.model.db.FilmDbItem
-import com.example.filmoteka.ui.screens.home.HomeViewModel
-import com.example.filmoteka.ui.screens.home.OnBottomReached
-import com.example.filmoteka.ui.screens.home.TopBar
-import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun WishListScreen(viewModel: WishListViewModel) {
+fun WatchListScreen(viewModel: WatchListViewModel) {
     val state = viewModel.state.collectAsStateWithLifecycle()
 
     Column {
         //TopBar(viewModel)
-        WishlistFilmsWidget(viewModel, films = state.value.films)
+        WatchlistFilmsWidget(viewModel, films = state.value.films)
     }
 }
 
 @Composable
-private fun WishlistFilmsWidget(viewModel: WishListViewModel, films: List<FilmItem>) {
+private fun WatchlistFilmsWidget(viewModel: WatchListViewModel, films: List<FilmItem>) {
 
     val gridState = rememberLazyGridState()
     LazyVerticalGrid(
@@ -59,7 +53,7 @@ private fun WishlistFilmsWidget(viewModel: WishListViewModel, films: List<FilmIt
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(films, { film -> film.id }) { film ->
-            WishlistFilmWidget(film, viewModel)
+            WatchlistFilmWidget(film, viewModel)
         }
     }
     // call the extension function
@@ -69,7 +63,7 @@ private fun WishlistFilmsWidget(viewModel: WishListViewModel, films: List<FilmIt
 }
 
 @Composable
-private fun WishlistFilmWidget(film: FilmItem, viewModel: WishListViewModel) {
+private fun WatchlistFilmWidget(film: FilmItem, viewModel: WatchListViewModel) {
     val placeholderPhoto = painterResource(id = R.drawable.placeholder)
     Column {
         AsyncImage(
@@ -86,11 +80,6 @@ private fun WishlistFilmWidget(film: FilmItem, viewModel: WishListViewModel) {
 
         Row {
             IconButton(onClick = {
-//                if(wishListed) {
-//                    viewModel.removeFromWishlist(film.id)
-//                }else{
-//                    viewModel.addToWishlist(film)
-//                }
             }) {
                 Icon(
                     Icons.Outlined.Bookmark,

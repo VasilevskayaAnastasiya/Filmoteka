@@ -8,4 +8,5 @@ data class HomeState(
     val lastPage: Int = 0,
     val search: String = "",
     val wishlist: Set<String> = emptySet(),
+    val watchlist: Set<String> = emptySet(),
 )
