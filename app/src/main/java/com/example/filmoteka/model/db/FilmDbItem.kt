@@ -17,3 +17,8 @@ data class FilmDbItem(
 data class FilmWishlistItem(
     @PrimaryKey val id_api: String
 )
+
+@Entity(tableName = "films_watchlist")
+data class FilmWatchlistItem(
+    @PrimaryKey val id_api: String
+)

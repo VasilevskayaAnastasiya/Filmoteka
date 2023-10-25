@@ -19,6 +19,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkAdd
+import androidx.compose.material.icons.outlined.RemoveRedEye
+import androidx.compose.material.icons.outlined.TvOff
+import androidx.compose.material.icons.rounded.PanoramaFishEye
+import androidx.compose.material.icons.rounded.RemoveRedEye
+import androidx.compose.material.icons.sharp.Tv
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,12 +64,12 @@ fun HomeScreen(viewModel: HomeViewModel, snackbarHostState: SnackbarHostState) {
 
     Column {
         TopBar(viewModel)
-        HomeFilmsWidget(viewModel, films = state.value.films, wishlist = state.value.wishlist)
+        HomeFilmsWidget(viewModel, films = state.value.films, wishlist = state.value.wishlist, watchlist = state.value.watchlist)
     }
 }
 
 @Composable
-private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<FilmItem>, wishlist: Set<String>) {
+private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<FilmItem>, wishlist: Set<String>, watchlist: Set<String>) {
 
     val gridState = rememberLazyGridState()
     LazyVerticalGrid(
@@ -76,7 +81,7 @@ private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<FilmItem>, wis
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(films, { film -> film.id }) { film ->
-            HomeFilmWidget(film, viewModel, wishlist)
+            HomeFilmWidget(film, viewModel, wishlist, watchlist)
         }
     }
     // call the extension function
@@ -86,7 +91,7 @@ private fun HomeFilmsWidget(viewModel: HomeViewModel, films: List<FilmItem>, wis
 }
 
 @Composable
-private fun HomeFilmWidget(film: FilmItem, viewModel: HomeViewModel, wishlist: Set<String>) {
+private fun HomeFilmWidget(film: FilmItem, viewModel: HomeViewModel, wishlist: Set<String>, watchlist: Set<String>) {
     val placeholderPhoto = painterResource(id = R.drawable.placeholder)
     Column {
         AsyncImage(
@@ -107,6 +112,13 @@ private fun HomeFilmWidget(film: FilmItem, viewModel: HomeViewModel, wishlist: S
         } else {
             Icons.Outlined.BookmarkAdd
         }
+
+        val watchListed = watchlist.contains(film.id)
+        val iconWatchlist = if (watchListed) {
+            Icons.Outlined.TvOff
+        } else {
+            Icons.Sharp.Tv
+        }
         Row {
             IconButton(onClick = {
                 if(wishListed) {
@@ -124,11 +136,22 @@ private fun HomeFilmWidget(film: FilmItem, viewModel: HomeViewModel, wishlist: S
                     tint = Color.White,
                 )
             }
-            Icon(
-                painterResource(R.drawable.icon_wishlist_add),
-                contentDescription = "",
-                modifier = Modifier.size(30.dp)
-            )
+            IconButton(onClick = {
+                if(watchListed) {
+                    viewModel.removeFromWatchlist(film.id)
+                }else{
+                    viewModel.addToWatchlist(film)
+                }
+            }) {
+                Icon(
+                    iconWatchlist,
+                    contentDescription = "Смотрел",
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(30.dp),
+                    tint = Color.White,
+                )
+            }
         }
 
     }

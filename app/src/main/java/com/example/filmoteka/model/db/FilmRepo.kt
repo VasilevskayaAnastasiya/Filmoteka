@@ -25,4 +25,25 @@ class FilmRepo(val filmDao: FilmDao) {
     fun getWishlistFilms(): Flow<List<FilmDbItem>>{
         return filmDao.getWishlistFilms()
     }
+
+    suspend fun insertToWatchlist(film: FilmItem) {
+
+        filmDao.insertToWatchlist(FilmWatchlistItem(film.id))
+
+        val filmDb = FilmDbItem(
+            film.id, film.title, film.poster.toString(), film.year
+        )
+        filmDao.insertToFilm(filmDb)
+    }
+
+    fun getWatchlist(): Flow<List<FilmWatchlistItem>> {
+        return filmDao.getWatchlist()
+    }
+    suspend fun deletefromWatchlist(filmId: String) {
+        filmDao.deletefromWatchlist(filmId)
+    }
+
+    fun getWatchlistFilms(): Flow<List<FilmDbItem>>{
+        return filmDao.getWatchlistFilms()
+    }
 }

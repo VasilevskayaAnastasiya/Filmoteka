@@ -44,6 +44,17 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+
+        viewModelScope.launch {
+            filmRepo.getWatchlist().collectLatest { items ->
+                val watchlist = items.map { it.id_api }.toSet()
+                _state.update { oldState ->
+                    oldState.copy(
+                        watchlist = watchlist
+                    )
+                }
+            }
+        }
     }
 
     fun fetchMoreItems() {
@@ -97,6 +108,18 @@ class HomeViewModel @Inject constructor(
     fun removeFromWishlist(filmId: String){
         viewModelScope.launch {
             filmRepo.deletefromWishlist(filmId)
+        }
+    }
+
+    fun addToWatchlist(film: FilmItem) {
+        viewModelScope.launch {
+            filmRepo.insertToWatchlist(film)
+        }
+    }
+
+    fun removeFromWatchlist(filmId: String){
+        viewModelScope.launch {
+            filmRepo.deletefromWatchlist(filmId)
         }
     }
 }

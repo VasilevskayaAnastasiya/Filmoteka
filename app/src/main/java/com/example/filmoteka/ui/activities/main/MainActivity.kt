@@ -5,7 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -16,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,6 +31,8 @@ import com.example.filmoteka.model.db.FilmDao
 import com.example.filmoteka.ui.screens.home.HomeScreen
 import com.example.filmoteka.ui.screens.home.HomeViewModel
 import com.example.filmoteka.ui.screens.home.TopBar
+import com.example.filmoteka.ui.screens.watchlist.WatchListScreen
+import com.example.filmoteka.ui.screens.watchlist.WatchListViewModel
 import com.example.filmoteka.ui.screens.wishlist.WishListScreen
 import com.example.filmoteka.ui.screens.wishlist.WishListViewModel
 import com.example.filmoteka.ui.theme.FilmotekaTheme
@@ -52,7 +61,24 @@ class MainActivity : ComponentActivity() {
                         NavigationBarItem(selected = false,
                             onClick = { navHostController.navigate("wishlist") },
                             icon = { },
-                            label = { Text(text = "Wishlist") })
+                            label = { Icon(
+                                Icons.Outlined.Bookmark,
+                                contentDescription = "Избранное",
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .size(30.dp),
+                                tint = Color.White) })
+
+                        NavigationBarItem(selected = false,
+                            onClick = { navHostController.navigate("watchlist") },
+                            icon = { },
+                            label = { Icon(
+                                Icons.Outlined.Tv,
+                                contentDescription = "Просмотренное",
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .size(30.dp),
+                                tint = Color.White) })
                     }
                 }, snackbarHost = {
                     SnackbarHost(hostState = snackbarHostState) {
@@ -75,6 +101,11 @@ class MainActivity : ComponentActivity() {
                         composable("wishlist") {
                             val viewModel = hiltViewModel<WishListViewModel>()
                             WishListScreen(viewModel = viewModel)
+                        }
+
+                        composable("watchlist") {
+                            val viewModel = hiltViewModel<WatchListViewModel>()
+                            WatchListScreen(viewModel = viewModel)
                         }
                     }
 
